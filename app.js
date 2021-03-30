@@ -3,27 +3,24 @@
 require('dotenv').config()
 require('./models/db')
 const config = require('./config')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
-const bodyParser = require('body-parser')
+
+//JWT
 const jwt = require('jsonwebtoken')
-//const http = require('http')
 
 //Apollo
 const { ApolloServer } = require('apollo-server-express')
 
-//graphql
-//const { graphqlHTTP } = require('express-graphql');
+//Graphql
 const { composeWithMongoose } = require('graphql-compose-mongoose')
 const { schemaComposer } = require('graphql-compose')
 
-//mongoose
+//Mongoose
 const mongoose = require('mongoose')
+
+//Express
+const express = require('express')
 //#endregion
 
-const express = require('express')
-const { response } = require('express')
-//const { request } = require('https')
 
 
 //requirering mongoose models
@@ -87,16 +84,9 @@ function checkAuthInContext(context){
 async function findUser(id){
   return userId = await User.findOne({ _id: tokenUserId });
 }
-//Adding auth check to all paths (setting isAuth in context.req)
-//app.use('/', isAuth)
 
-//, [authMiddleware]
 //Method for autogenerating resolvers(queries/mutations) based on mongoose models
-
-// .wrapResolve(next => rp => {
-//   console.log(rp.context);
-//   if(checkAuthInContext(rp.context)) return next(rp);
-// })
+//https://www.youtube.com/watch?v=RXcY-OoGnQ8&list=PLvz7Wgo5pCqawFhP7oqpccU--C6ne2ZVN&index=3
 
 const addToSchema = (collection, TC) => {
   let query = {}
@@ -158,7 +148,6 @@ UserTC.addResolver({
   },
   type: UserTC.getResolver('updateById').getType(),
   resolve: async({args, context}) => {
-    //  console.log(context.req.isAuth)
       let user = null;
       if(isNaN(Number(args.identity))){
           user = await User.findOne({ email: args.identity });
@@ -192,23 +181,6 @@ schemaComposer.Mutation.addFields({
 //Adding and building the above schema modifications
 const graphqlSchema = schemaComposer.buildSchema();
 
-//Seting up server
-//const server = new ApolloServer({ schema: graphqlSchema, playground: true, introspection: true });
-//server.applyMiddleware({ app })
-
-// GraphQL
-// app.use(
-//   "/graphql",
-//   graphqlHTTP(async (req) => ({
-//     schema: graphqlSchema,
-//     graphiql: true,
-//     context: {
-//       req,
-//     },
-//   }))
-// );
-
-
 ///////////////// SERVER SETUP ///////////////////////
 const server = new ApolloServer({ 
   schema: graphqlSchema, 
@@ -220,53 +192,11 @@ const server = new ApolloServer({
 const app = express();
 
 //Using
+//Adding auth check to all paths (setting isAuth in context.req)
 app.use('/', isAuth)
-app.use(express.json())
-app.use(cors());
-app.use(bodyParser.json());
-app.use(cookieParser());
-
-// app.use(
-//   '/graphql',
-//   graphqlHTTP(async (request, response) => {
-//     return {
-//       schema: graphqlSchema,
-//       graphiql: true,
-//       context: {
-//         req: request,
-//       },
-//     };
-//   })
-// );
 
 server.applyMiddleware({ app })
 
 app.listen(config.port, () => {
   console.log(`The server is running at http://localhost:${config.port}/graphql`)
 });
-
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, (err) => {
-//   if (err) throw err;
-//   console.log(`Server URL: http://localhost:${config.port}${server.graphqlPath}/`);
-// });
-
-////#region :ALTERNATIV server setup
-//app.listen(config.port)
-
-//ALTERNATIV TIL SERVER SETUP 
-//app.listen(3050, () => console.log("Listening on port 3050"))
-//module.exports = app;
-
-// const httpServer = http.createServer(app);
-// httpServer.listen({ port: 3050 }, () => {
-//   console.log(`Server ready at http://0.0.0.0:${config.port}${server.graphqlPath}`);
-// } )
-
-//mongoose.connect('mongodb://localhost:27017/hotel', {useNewUrlParser: true});
-
-
-//  app.listen(config.port, () => {
-//      console.log(`Server URL: http://localhost:${config.port}$/`);
-//    });
-////#endregion

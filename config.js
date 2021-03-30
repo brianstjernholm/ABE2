@@ -16,8 +16,8 @@ exports.isDev = isDev;
 const port = process.env.PORT;
 exports.port = port 
 //export 
-const MongoConnectionString = process.env.MONGO_DEV_CONNECTION_STRING;
-exports.MongoConnectionString = MongoConnectionString
+const mongoDevUri = process.env.MONGODB_DEV_URI;
+exports.mongoDevUri = mongoDevUri
 //export 
 const mongoProdUri = process.env.MONGODB_PROD_URI;
 exports.mongoProdUri = mongoProdUri

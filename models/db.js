@@ -3,14 +3,11 @@ const config = require('../config')
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose')
 
+let dbUrl = config.mongoDevUri;
 
-let dbUrl = 'mongodb+srv://admin:Password1@cluster0.qooxs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-
-//mongodb+srv://admin:Password1@cluster0.qooxs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
-
-//if (process.env.NODE_ENV === 'production') {
-//    dbUrl = config.mongoProdUri;
-//}
+if (process.env.NODE_ENV === 'production') {
+    dbUrl = config.mongoProdUri;
+}
 
 //Listening for mongoose connection events
 mongoose.connection.on('connected', () => {
@@ -22,9 +19,6 @@ mongoose.connection.on('error', err => {
 mongoose.connection.on('disconnected', () => {
     console.log('Mongoose disconnected');
 });
-
-//mongoose.connect('mongodb+srv://admin:Password1@cluster0.qooxs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority')
-//mongoose.connect('mongodb://localhost:27917/hotel', {useNewUrlParser: true});
 
 // Connect to database
 mongoose.connect(dbUrl, {
